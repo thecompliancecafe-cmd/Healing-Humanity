@@ -1,0 +1,181 @@
+import React, { useState } from 'react';
+import { CampaignCategory } from '../types';
+import { Rocket, DollarSign, Image as ImageIcon, AlertCircle, Wallet, ArrowLeft } from 'lucide-react';
+
+interface CreateCampaignFormProps {
+  onSubmit: (data: any) => void;
+  onCancel: () => void;
+}
+
+const CreateCampaignForm: React.FC<CreateCampaignFormProps> = ({ onSubmit, onCancel }) => {
+  const [formData, setFormData] = useState({
+    title: '',
+    description: '',
+    category: CampaignCategory.Medical,
+    targetAmount: '',
+    walletAddress: '',
+    imageUrl: ''
+  });
+  const [loading, setLoading] = useState(false);
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    
+    // Simulate network delay for blockchain transaction
+    setTimeout(() => {
+      onSubmit({
+        ...formData,
+        targetAmount: Number(formData.targetAmount),
+        // Randomize fee slightly to show dynamic fee engine based on category risk
+        platformFeePercentage: formData.category === CampaignCategory.DisasterRelief ? 1.5 : 2.5 
+      });
+      setLoading(false);
+    }, 1500);
+  };
+
+  return (
+    <div className="max-w-3xl mx-auto pt-10 px-4 pb-20 bg-slate-50 min-h-screen">
+      <button onClick={onCancel} className="mb-8 flex items-center text-slate-500 hover:text-sky-600 transition-colors font-medium">
+        <ArrowLeft className="w-4 h-4 mr-2" />
+        Cancel
+      </button>
+      
+      <div className="bg-white rounded-3xl p-10 border border-slate-100 shadow-xl shadow-slate-200/50">
+        <div className="flex items-center gap-5 mb-10 border-b border-slate-100 pb-8">
+          <div className="bg-sky-50 p-4 rounded-full text-sky-600 border border-sky-100">
+            <Rocket className="w-8 h-8" />
+          </div>
+          <div>
+            <h2 className="text-3xl font-bold text-slate-900 font-serif">Launch Your Campaign</h2>
+            <p className="text-slate-500 mt-1">Create a transparent, blockchain-verified charity initiative.</p>
+          </div>
+        </div>
+
+        <form onSubmit={handleSubmit} className="space-y-8">
+          {/* Title */}
+          <div>
+            <label className="block text-sm font-bold text-slate-700 mb-2">Campaign Title</label>
+            <input
+              type="text"
+              required
+              placeholder="e.g., Community Garden Project"
+              className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-4 text-slate-900 focus:ring-2 focus:ring-sky-500 focus:border-transparent outline-none transition-all placeholder:text-slate-400"
+              value={formData.title}
+              onChange={e => setFormData({...formData, title: e.target.value})}
+            />
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+             {/* Category */}
+             <div>
+                <label className="block text-sm font-bold text-slate-700 mb-2">Category</label>
+                <div className="relative">
+                    <select
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-4 text-slate-900 focus:ring-2 focus:ring-sky-500 focus:border-transparent outline-none appearance-none cursor-pointer"
+                    value={formData.category}
+                    onChange={e => setFormData({...formData, category: e.target.value as CampaignCategory})}
+                    >
+                    {Object.values(CampaignCategory).map(cat => (
+                        <option key={cat} value={cat}>{cat}</option>
+                    ))}
+                    </select>
+                    <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-500">
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
+                    </div>
+                </div>
+             </div>
+
+             {/* Target */}
+             <div>
+                <label className="block text-sm font-bold text-slate-700 mb-2">Target Goal ($)</label>
+                <div className="relative">
+                  <DollarSign className="absolute left-4 top-4 w-5 h-5 text-slate-400" />
+                  <input
+                    type="number"
+                    required
+                    placeholder="10000"
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-12 pr-4 py-4 text-slate-900 focus:ring-2 focus:ring-sky-500 focus:border-transparent outline-none transition-all placeholder:text-slate-400"
+                    value={formData.targetAmount}
+                    onChange={e => setFormData({...formData, targetAmount: e.target.value})}
+                  />
+                </div>
+             </div>
+          </div>
+
+          {/* Description */}
+          <div>
+            <label className="block text-sm font-bold text-slate-700 mb-2">Description</label>
+            <textarea
+              required
+              rows={5}
+              placeholder="Describe your cause and how funds will be used..."
+              className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-4 text-slate-900 focus:ring-2 focus:ring-sky-500 focus:border-transparent outline-none transition-all placeholder:text-slate-400 resize-none"
+              value={formData.description}
+              onChange={e => setFormData({...formData, description: e.target.value})}
+            />
+          </div>
+
+          {/* Wallet Address */}
+          <div>
+            <label className="block text-sm font-bold text-slate-700 mb-2">Recipient Wallet Address</label>
+            <div className="relative">
+                <Wallet className="absolute left-4 top-4 w-5 h-5 text-slate-400" />
+                <input
+                type="text"
+                required
+                placeholder="0x..."
+                className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-12 pr-4 py-4 text-slate-900 focus:ring-2 focus:ring-sky-500 focus:border-transparent outline-none font-mono text-sm transition-all placeholder:text-slate-400"
+                value={formData.walletAddress}
+                onChange={e => setFormData({...formData, walletAddress: e.target.value})}
+                />
+            </div>
+            <p className="text-xs text-slate-500 mt-2 flex items-center gap-1.5 ml-1">
+                <AlertCircle className="w-3.5 h-3.5" />
+                Funds will be held in escrow until triggers are met.
+            </p>
+          </div>
+
+          {/* Image URL */}
+          <div>
+            <label className="block text-sm font-bold text-slate-700 mb-2">Cover Image URL</label>
+            <div className="relative">
+                <ImageIcon className="absolute left-4 top-4 w-5 h-5 text-slate-400" />
+                <input
+                type="url"
+                placeholder="https://..."
+                className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-12 pr-4 py-4 text-slate-900 focus:ring-2 focus:ring-sky-500 focus:border-transparent outline-none transition-all placeholder:text-slate-400"
+                value={formData.imageUrl}
+                onChange={e => setFormData({...formData, imageUrl: e.target.value})}
+                />
+            </div>
+          </div>
+
+          <div className="pt-6 border-t border-slate-100 mt-8">
+             <div className="bg-amber-50 border border-amber-100 p-5 rounded-xl mb-8 flex gap-3 items-start">
+                <AlertCircle className="w-5 h-5 text-amber-500 mt-0.5 flex-shrink-0" />
+                <div>
+                    <p className="text-amber-800 text-sm font-bold mb-1">
+                        Transparency Notice
+                    </p>
+                    <p className="text-amber-700/80 text-sm leading-relaxed">
+                        A platform fee of ~2.5% will be applied to all donations to cover verification nodes and audit costs. By creating this campaign, you agree to on-chain tracking of all expenditures.
+                    </p>
+                </div>
+             </div>
+
+             <button
+                type="submit"
+                disabled={loading}
+                className="w-full bg-sky-600 hover:bg-sky-700 text-white font-bold py-5 rounded-xl transition-all shadow-xl shadow-sky-200 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-sky-300 transform hover:-translate-y-0.5"
+             >
+                {loading ? 'Deploying Contract...' : 'Create Campaign'}
+             </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+};
+
+export default CreateCampaignForm;
